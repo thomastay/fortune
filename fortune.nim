@@ -23,6 +23,7 @@ proc main() =
     let fortunes = readFile(filename).split(fortuneSep)
     let fortuneIdx = fortuneNum - fileIdx
     let fortuneWanted = fortunes[fortuneIdx]
+    echo "Your lucky number is ", fortuneNum
     echo fortuneWanted
   else:
     echo "Please enter a fortune number"
