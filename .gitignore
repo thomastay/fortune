@@ -1,3 +1,7 @@
 fortunes/
+zig-cache/
+zig-out/
 *.exe
 header.txt
+header2.txt
+fortunes-all.dat

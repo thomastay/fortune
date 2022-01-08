@@ -48,6 +48,3 @@ proc writeHeader() =
 writeHeader()
 writeFortunes()
 
-
-  
-
