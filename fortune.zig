@@ -32,18 +32,9 @@ const maxFortuneLen = std.mem.readIntNative(u32, header[0..4]);
 const numFortunes = std.mem.readIntNative(u32, header[4..8]);
 var argBuffer: [1000]u8 = undefined;
 var fortuneBuffer: [maxFortuneLen]u8 = undefined;
-const luckyMessage = "Your lucky number is ";
-const luckyiov = std.os.iovec_const{
-    .iov_base = luckyMessage,
-    .iov_len = luckyMessage.len,
-};
-const endliov = std.os.iovec_const{
-    .iov_base = "\n",
-    .iov_len = 1,
-};
 
 pub fn main() !void {
-    const stdout = std.io.getStdOut();
+    const stdout = std.io.getStdOut().writer();
     const allocator = std.heap.FixedBufferAllocator.init(&argBuffer).allocator();
     var argsIt = std.process.args();
     _ = try argsIt.next(allocator);
@@ -60,15 +51,10 @@ pub fn main() !void {
         // look for null byte in fortuneBuffer
         const end = std.mem.indexOfScalar(u8, &fortuneBuffer, 0) orelse fortuneBuffer.len;
 
-        // TODO: profile; doesn't seem much faster and in fact might be slower.
-        var iovs = [4]std.os.iovec_const{
-            luckyiov,
-            .{ .iov_base = first.ptr, .iov_len = first.len },
-            endliov,
-            .{ .iov_base = fortuneBuffer[0..end].ptr, .iov_len = end },
-        };
-
-        try stdout.writevAll(&iovs);
+        try stdout.writeAll("Your lucky number is ");
+        try stdout.writeAll(first);
+        try stdout.writeAll("\n");
+        try stdout.writeAll(fortuneBuffer[0..end]);
     } else {
         println("Please enter a number");
         return error.NoArgument;
