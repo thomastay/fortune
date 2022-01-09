@@ -24,16 +24,18 @@ fn println(x: Str) void {
 }
 
 const header = @embedFile("./header2.txt");
-const fortuneFilename = "fortunes-all.dat";
+var argBuffer: [1000 + std.fs.MAX_PATH_BYTES]u8 = undefined;
+const fortuneFilename = "/fortunes-all.dat"; // TODO workaround for std.fs.cwd() not being able to run at compile time
+
 comptime {
     assert(header.len == 8);
 }
 const maxFortuneLen = std.mem.readIntNative(u32, header[0..4]);
 const numFortunes = std.mem.readIntNative(u32, header[4..8]);
-var argBuffer: [1000]u8 = undefined;
 var fortuneBuffer: [maxFortuneLen]u8 = undefined;
 
 pub fn main() !void {
+    const fortuneFullFilename = std.fs.path.dirname(@src().file).? ++ fortuneFilename;
     const stdout = std.io.getStdOut().writer();
     const allocator = std.heap.FixedBufferAllocator.init(&argBuffer).allocator();
     var argsIt = std.process.args();
@@ -45,7 +47,7 @@ pub fn main() !void {
             println("Number exceeds num fortunes");
             return error.InvalidArgument;
         }
-        const fortuneFile = try fs.Dir.openFile(fs.cwd(), fortuneFilename, .{});
+        const fortuneFile = try fs.Dir.openFile(fs.cwd(), fortuneFullFilename, .{});
         defer fortuneFile.close();
         _ = try fortuneFile.pread(&fortuneBuffer, fortuneNum * maxFortuneLen);
         // look for null byte in fortuneBuffer
