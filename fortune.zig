@@ -55,8 +55,9 @@ pub fn main() !void {
 
         try stdout.writeAll("Your lucky number is ");
         try stdout.writeAll(first);
-        try stdout.writeAll("\n");
+        try stdout.writeByte('\n');
         try stdout.writeAll(fortuneBuffer[0..end]);
+        try stdout.writeByte('\n');
     } else {
         println("Please enter a number");
         return error.NoArgument;
